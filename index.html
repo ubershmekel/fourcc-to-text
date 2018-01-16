@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <title>FourCC to Text online</title>
+        <style>
+            body {
+                padding: 1em;
+            }
+            footer {
+                margin-top: 6em;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <h1>FourCC Online Converter</h1>
+
+        <p>
+            Convert your FourCC or "FourCharCode" into its text online by pasting it into this text box. You can type into the text box too to find the code.
+        </p>
+        
+        <table>
+            <tr>
+                <td>FourCC Integer:</td>
+                <td><input id="fourcc-number" type="text"></td>
+            </tr>
+            <tr>
+                <td>Text:</td>
+                <td><input id="fourcc-text" type="text"></td>
+            </tr>
+        </table>
+        <footer>
+            <p>Note it works with more or less than 2 characters. Maybe that's wrong, maybe that handles null characters incorrectly? PRs are welcome.</p>
+            <p>Read more about Four Character Codes at <a href="https://en.wikipedia.org/wiki/FourCC">Wikipedia</a></p>
+            <p>Source for this <a href="https://github.com/ubershmekel/fourcc-to-text">on github</a></p>
+        </footer>
+
+        <script>
+            var fourccTextId = '#fourcc-text';
+            var fourccNumberId = '#fourcc-number';
+
+            function codeToText(numText) {
+                var st = '';
+                /*
+                st += String.fromCharCode((num >> 24) & 0xff);
+                st += String.fromCharCode((num >> 16) & 0xff);
+                st += String.fromCharCode((num >> 8) & 0xff);
+                st += String.fromCharCode(num & 0xff);
+                */
+                var num = +numText;
+                if (isNaN(num)) {
+                    alert('You put something that is not a number into the number field');
+                    return;
+                }
+                while (num > 0) {
+                    st += String.fromCharCode(num & 0xff)
+                    num = Math.floor(num / 256);
+                }
+                return st.split("").reverse().join("");
+            }
+
+            function textToCode(text) {
+                var codeSum = 0;
+                for (var i = 0; i < text.length; i++) {
+                    var num = text[text.length - i - 1].charCodeAt(0);
+                    //codeSum += num << (i * 8);
+                    // 1 << 31 = -2B
+                    // 1 << 32 = 1
+                    // So we have to multiply
+                    codeSum += num * Math.pow(2, i * 8);
+                }
+                return codeSum;
+            }
+
+            function onNumberChange(event) {
+                var code = event.target.value;
+                var text = codeToText(code);
+                var outputEl = document.querySelector(fourccTextId)
+                outputEl.value = text;
+            }
+
+            function onTextChange(event) {
+                var text = event.target.value;
+                var code = textToCode(text);
+                var outputEl = document.querySelector(fourccNumberId)
+                outputEl.value = code;
+            }
+
+            function hookInput(inputEl, func) {
+                // `onchange` requires losing focus to update :/
+                //fourccInputEl.onchange = onInputChange;
+                inputEl.oninput = func;
+                inputEl.onpropertychange = inputEl.oninput; // for IE8
+            }
+
+            function main() {
+                var numberInputEl = document.querySelector(fourccNumberId);
+                hookInput(numberInputEl, onNumberChange);
+
+                var textInputEl = document.querySelector(fourccTextId);
+                hookInput(textInputEl, onTextChange);
+            }
+            document.addEventListener("DOMContentLoaded", main);
+        </script>
+    </body>
+</html>
