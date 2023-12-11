@@ -47,7 +47,7 @@
                 st += String.fromCharCode(num & 0xff);
                 */
                 var num = +numText;
-                if (isNaN(num)) {
+                if (isNaN(num) && numText.toUpperCase() != "0B" && numText.toUpperCase() != "0O" && numText.toUpperCase() != "0X") {
                     alert('You put something that is not a number into the number field');
                     return;
                 }
